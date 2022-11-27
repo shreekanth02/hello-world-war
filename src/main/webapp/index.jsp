@@ -8,7 +8,7 @@
 	<h2>2.currently im learning devops</h2>
 	<h2>3.im from Bidar</h2>
 	<h2>4..............</h2>
-	<h2>5................</h2>
+	<h2>5..............</h2>
 	<p>
 		It is now
 		<%= new java.util.Date() %></p>
