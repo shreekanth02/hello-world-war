@@ -1,0 +1,24 @@
+pipeline {
+    agent none
+    stages {
+      stage('build'){
+      agent{label 'slv'}
+      steps{
+            sh 'pwd'
+            sh 'echo ${BUILD_NUMBER}'
+            sh 'mvn deploy'
+            echo "package build successfully and deployed"
+      }
+    }
+    stage ('deploy'){
+    agent{label 'tom'}
+      steps{
+        sh 'curl -u shreebiradar8222@gmail.com:Shree@02 -O https://shreekbiradar.jfrog.io/artifactory/libs-release-local/com/efsavage/hello-world-war/${BUILD_NUMBER}/hello-world-war-${BUILD_NUMBER}.war'
+        sh 'sudo cp -R hello-world-war-${BUILD_NUMBER}.war /opt/tomcat/webapps/'
+        sh 'sudo sh /opt/tomcat/bin/shutdown.sh'
+        sh 'sleep 5'
+        sh 'sudo sh /opt/tomcat/bin/startup.sh'
+      }
+    }
+  }
+ }
