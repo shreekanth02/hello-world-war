@@ -11,8 +11,8 @@ pipeline {
             agent {label 'slave1'}
             steps {
                 sh "echo ${BUILD_VERSION}"
-                withCredentials([usernamePassword(credentialsId: 'Dockerhub', passwordVariable: 'password', usernameVariable: 'username')]) {
-                sh 'docker login -u${env.username}  -p ${env.password}'
+                withCredentials([usernamePassword(credentialsId: 'Dockerhub', passwordVariable: 'Dockerhubpassword', usernameVariable: 'DockerhubUser')]) {
+                sh 'docker login -u${env.DockerhubUser}  -p ${env.Dockerhubpassword}'
                 sh 'docker tag tomcat_build:${BUILD_VERSION} shree02/mytomcat:${BUILD_VERSION}'
                 sh 'docker push shree02/mytomcat:${BUILD_VERSION}'
             }
