@@ -1,24 +1,27 @@
 pipeline {
-	agent none
-        stages {
-           stage ("tomcat buid & move to other node") {
-	       agent {label "slv"}
-              steps {
-                      sh 'sudo mvn package'
-		      sh 'ls'
-		      sh 'scp -R target/hello-world-war-1.0.0.war jen@172.31.12.113:/opt/tomcat/webapps'
-		      echo "sucessfully copied build to other node"
-	      }
-	   }
-	   stage ('diploy in node2') {
-	      agent {label "tom"}
-	   	steps {
-		    sh 'sudo sh /opt/tomcat/bin/shutdown.sh'                   
-                    sh 'sudo sleep 3'
-                    sh 'sudo sh /opt/tomcat/bin/startup.sh'
-                    echo "diployment is sucessfull"
-                    echo "copy the public ip of instace and open it in browser with port:8090"
-		}
-	   } 	   
-        }
+    agent {label 'sla'}
+    stages {
+        stage('my Build') {
+            steps {
+                sh "echo ${BUILD_VERSION}"
+                sh 'docker build -t tomcat_build:${BUILD_VERSION} --build-arg BUILD_VERSION=${BUILD_VERSION} .'
+            }
+        }  
+        stage('publish stage') {
+            steps {
+                sh "echo ${BUILD_VERSION}"
+                sh 'docker login -u shree02 -p shree@8222'
+                sh 'docker tag tomcat_build:${BUILD_VERSION} shree02/mytomcat:${BUILD_VERSION}'
+                sh 'docker push shree02/mytomcat:${BUILD_VERSION}'
+            }
+        } 
+        stage( 'my deploy' ) {
+        agent {label 'ansible'} 
+            steps {
+               sh 'docker pull shree02/mytomcat:${BUILD_VERSION}'
+               sh 'docker rm -f mytomcat'
+               sh 'docker run -d -p 8080:8080 --name mytomcat shree02/mytomcat:${BUILD_VERSION}'
+            }
+        }    
+    } 
 }
